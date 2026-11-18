@@ -65,7 +65,48 @@ export default function bezeroRoutes(db) {
 
     router.get("/ekitaldiak/bezeroak/hurbilekoak", lortuHurbilekoEkitaldiak);
 
+    // GET /ekitaldiak/bezeroak/doakoak
+// Doako ekitaldiak bilatzen ditu, eta nahi izanez gero, herriaren arabera iragazten ditu
+// Adib: /ekitaldiak/bezeroak/doakoak?herria=Arrigorriaga
+// ==============================================================================
 
+
+async function lortuDoakoEkitaldiak(req, res) {
+    try {
+        const iragazkia = {
+            eventPrice: "Doan"
+        };
+
+
+        if (req.query.herria) {
+            iragazkia.eventTownName = req.query.herria;
+        }
+
+
+        const ekitaldiak = await db.collection("ekitaldiak").find(iragazkia, {
+            projection: {
+                documentName: 1,
+                eventType: 1,
+                eventStartDate: 1,
+                eventTimeTable: 1,
+                eventTownName: 1,
+                eventWhere: 1,
+                eventPrice: 1,
+                _id: 0
+            }
+        }).sort({ eventStartDate: 1 }).limit(50).toArray();
+
+
+        res.json(ekitaldiak);
+
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+
+router.get("/ekitaldiak/bezeroak/doakoak", lortuDoakoEkitaldiak);
 
   // =====================================================
     // GET: Bilatu zure ekitaldia
